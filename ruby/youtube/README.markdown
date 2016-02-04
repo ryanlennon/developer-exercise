@@ -1,8 +1,7 @@
 ##Youtube Readme
 
 I created a Rails application and constructed a youtube app so the code for
-the .rb and .erb files comes from that application. Basically you need to put it in 
-a rails app to get it going.
+the .rb and .erb files comes from that application. 
 
 To create a quick rails app:
 
@@ -10,6 +9,8 @@ To create a quick rails app:
 
 -cd youtube
 
--rails generate controller youtubes
+-rails generate controller youtubes, and then create a route and view
 
-and then create a route and view and thats it! Enjoy!
+or if you have a rails app you can place it in your own control and view and test it out!
+
+Thats it! Enjoy!

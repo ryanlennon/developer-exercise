@@ -1,3 +1,5 @@
+var testThis = true;
+
 $(document).ready(function($) {
     $('.accordion-wrapper').find('.accordion-header').click(function() {
 
