@@ -1,3 +1,5 @@
+require 'minitest/autorun'
+require 'rspec'
 class Card
   attr_accessor :suite, :name, :value
 
@@ -49,11 +51,62 @@ class Hand
   def initialize
     @cards = []
   end
+
+  def hit(deck)
+    @cards << deck.playable_cards.shift
+  end
+
+  def value
+    value = 0
+    cards.each do |card|
+      value += card.value
+    end
+    value
+  end
+
+  def show_upcard_value
+    @cards[0].value
+  end
+
+  def dealers_turn(deck)
+    if value < 17 
+      hit(deck)
+      dealers_turn(deck)
+    end
+  end
 end
 
-require 'test/unit'
+class Game
+  attr_reader :player, :dealer
 
-class CardTest < Test::Unit::TestCase
+  def initialize
+    @deck = Deck.new
+    @player = Hand.new
+    @dealer = Hand.new
+    2.times { @player.hit(@deck) }
+    2.times { @dealer.hit(@deck) }
+  end
+
+  def check_winner(player_value, dealer_value)
+    if player_value > 21
+      "Busted!"
+    elsif dealer_value > 21
+      "Dealer busted, you win!"  
+    elsif player_value == 21
+      "Blackjack!"
+    elsif player_value > dealer_value
+      "You win!"
+    else
+      "You lose!"
+    end
+  end
+
+end
+
+
+
+
+class CardTest < Minitest::Test
   def setup
     @card = Card.new(:hearts, :ten, 10)
   end
@@ -70,7 +123,7 @@ class CardTest < Test::Unit::TestCase
   end
 end
 
-class DeckTest < Test::Unit::TestCase
+class DeckTest < Minitest::Test
   def setup
     @deck = Deck.new
   end
@@ -80,12 +133,62 @@ class DeckTest < Test::Unit::TestCase
   end
   
   def test_dealt_card_should_not_be_included_in_playable_cards
+    check = true
     card = @deck.deal_card
-    assert(@deck.playable_cards.include?(card))
+    @deck.playable_cards.each do |cards|
+      if cards.suite == card.suite && cards.name == card.name
+        check = true
+      else
+        check = false
+      end
+    end
+    assert_equal @deck.playable_cards.include?(card), false
   end
 
   def test_shuffled_deck_has_52_playable_cards
     @deck.shuffle
     assert_equal @deck.playable_cards.size, 52
+  end
+end
+
+class GameTest < Minitest::Test
+  def setup
+    @game = Game.new
+  end
+
+  def test_player_gets_2_cards
+    assert_equal @game.player.cards.length, 2
+  end
+
+  def test_dealer_gets_2_cards
+    assert_equal @game.dealer.cards.length, 2
+  end
+end
+
+RSpec.describe Hand do
+
+  it "should show dealers hand" do
+    deck = double(:deck, :playable_cards => [Card.new(:hearts, :nine, 9), Card.new(:spades, :two, 2)])
+    @dealer = Hand.new
+    2.times { @dealer.hit(deck) }
+    expect(@dealer.show_upcard_value).to eq(@dealer.cards[0].value)
+  end
+
+  it "should bust when players goes over 21" do
+    game = Game.new
+    expect(game.check_winner(23,13)).to eq("Busted!")
+  end
+
+  it "should allow user to blackjack if cards equal 21" do
+    game = Game.new
+    expect(game.check_winner(21,20)).to eq("Blackjack!")
+  end
+
+  it "should allow dealer to get cards after player stands" do
+    deck = double(:deck, :playable_cards => [Card.new(:hearts, :nine, 9), Card.new(:spades, :two, 2), Card.new(:clubs, :nine, 9), Card.new(:diamonds, :three, 3)])
+    dealer_hand = Hand.new
+    2.times { dealer_hand.hit(deck) }
+    dealer_hand.dealers_turn(deck)
+    expect(dealer_hand.value).to eq(20)
   end
 end
