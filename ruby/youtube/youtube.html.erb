@@ -1,0 +1,22 @@
+<h1>Youtube video search </h1>
+
+<%= form_tag '/tube', method: :get do %>
+  <%= label_tag :search %>
+  <%= text_field_tag :search %>
+  <%= label_tag :number %>
+  <%= text_field_tag :number %>
+  <%= submit_tag "Submit" %>
+
+<% end %>
+
+<h2>Top <%= @num %> <%= @search %> Videos</h2>
+
+  <% @youtube.each do |item| %>
+  <div>
+    <ul> 
+      <li>Title <%= item["snippet"]["title"] %></li>
+      <li>Description<%= item["snippet"]["description"] %></li>
+      <li><a href=http://www.youtube.com/watch?v=<%= item["id"]["videoId"] %>> Watch Video </a></li> 
+    </ul>
+  </div>
+  <% end %>
