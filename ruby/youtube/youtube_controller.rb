@@ -1,4 +1,5 @@
 class TubesController
+  require 'unirest'
 
   def index
 
