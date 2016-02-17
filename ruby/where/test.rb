@@ -1,9 +1,16 @@
 require 'minitest/autorun'
 
 class Array 
-  
-  def where(input)
-    self.select {|fixture| fixture[input] === input }
+   def where(input)
+    @info = self
+    input.each do |key, search_topic|
+      if search_topic.class == Regexp
+        @info = @info.select { |fixture| fixture[key] =~ search_topic }
+      else
+        @info = @info.select { |fixture| fixture[key] == search_topic }
+      end
+    end
+    @info
   end
 end
 
